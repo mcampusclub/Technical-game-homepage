@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Microsoft Campus Club — Technical Game Hub</title>
+<meta name="description" content="Enter the arena. Four technical logic games. One central hub. Microsoft Campus Club's Technical Game Hub.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     MCC TECHNICAL GAME HUB — DESIGN TOKENS
+     ============================================================ */
+  :root{
+    --void:        #05060c;
+    --navy-1:      #0a0d1e;
+    --navy-2:      #0d1226;
+    --panel:       rgba(14, 18, 38, 0.55);
+    --panel-solid: #0c0f22;
+    --border-dim:  rgba(148, 156, 200, 0.14);
+    --border-mid:  rgba(148, 156, 200, 0.26);
+
+    --text-hi:     #f4f5fb;
+    --text-mid:    #b7bcd6;
+    --text-dim:    #767c9c;
+
+    --blue-neb:    #3b5bff;
+    --pink-neb:    #ff2e9a;
+
+    --c-purple:    #a259ff;
+    --c-purple-2:  #ff4ecd;
+    --c-blue:      #2fb2ff;
+    --c-blue-2:    #1c7bff;
+    --c-pink:      #ff4ecd;
+    --c-pink-2:    #b23bff;
+    --c-cyan:      #2be8c9;
+    --c-cyan-2:    #14b88a;
+
+    --status-green: #34e39a;
+
+    --font-display: 'Chakra Petch', 'Segoe UI', sans-serif;
+    --font-body:    'Inter', 'Segoe UI', sans-serif;
+    --font-mono:    'JetBrains Mono', 'SFMono-Regular', monospace;
+
+    --radius-card: 4px;
+  }
+
+  /* ============================================================
+     RESET
+     ============================================================ */
+  *,*::before,*::after{ box-sizing:border-box; margin:0; padding:0; }
+  html{ scroll-behavior:smooth; }
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+    *,*::before,*::after{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; scroll-behavior:auto !important; }
+  }
+  body{
+    background:var(--void);
+    color:var(--text-hi);
+    font-family:var(--font-body);
+    overflow-x:hidden;
+    min-height:100vh;
+    line-height:1.5;
+  }
+  img{ max-width:100%; display:block; }
+  button{ font-family:inherit; cursor:pointer; }
+  a{ color:inherit; text-decoration:none; }
+
+  :focus-visible{
+    outline:2px solid var(--c-purple);
+    outline-offset:3px;
+    border-radius:2px;
+  }
+
+  .sr-only{
+    position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+    overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+  }
+
+  /* ============================================================
+     BACKGROUND — deep space / nebula / hud grid
+     ============================================================ */
+  .space-bg{
+    position:fixed;
+    inset:0;
+    z-index:0;
+    background:
+      radial-gradient(ellipse 60% 45% at 50% 8%, rgba(20,24,48,0.55), transparent 60%),
+      linear-gradient(180deg, var(--navy-1) 0%, var(--void) 55%, var(--navy-2) 100%);
+    overflow:hidden;
+  }
+  .space-bg::before{
+    /* faint grid */
+    content:"";
+    position:absolute; inset:0;
+    background-image:
+      linear-gradient(to right, rgba(148,156,200,0.045) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(148,156,200,0.045) 1px, transparent 1px);
+    background-size:56px 56px;
+    -webkit-mask-image:radial-gradient(ellipse 70% 60% at 50% 30%, #000 15%, transparent 75%);
+            mask-image:radial-gradient(ellipse 70% 60% at 50% 30%, #000 15%, transparent 75%);
+  }
+  .nebula{
+    position:absolute;
+    border-radius:50%;
+    filter:blur(90px);
+    opacity:0.5;
+    will-change:transform;
+  }
+  .nebula--blue{
+    width:52vw; height:52vw; max-width:820px; max-height:820px;
+    left:-16vw; top:-8vw;
+    background:radial-gradient(circle at 40% 40%, var(--blue-neb), transparent 68%);
+    animation:driftBlue 34s ease-in-out infinite;
+  }
+  .nebula--pink{
+    width:48vw; height:48vw; max-width:760px; max-height:760px;
+    right:-14vw; top:6vw;
+    background:radial-gradient(circle at 60% 40%, var(--pink-neb), transparent 68%);
+    opacity:0.4;
+    animation:driftPink 40s ease-in-out infinite;
+  }
+  .nebula--core{
+    width:60vw; height:30vw; max-width:900px; max-height:480px;
+    left:50%; top:2vw; transform:translateX(-50%);
+    background:radial-gradient(ellipse at center, rgba(90,60,160,0.25), transparent 70%);
+    opacity:0.6;
+  }
+  @keyframes driftBlue{
+    0%,100%{ transform:translate(0,0); }
+    50%{ transform:translate(2vw, 3vw); }
+  }
+  @keyframes driftPink{
+    0%,100%{ transform:translate(0,0); }
+    50%{ transform:translate(-2.4vw, -2vw); }
+  }
+
+  .stars{ position:absolute; inset:0; }
+  .star{
+    position:absolute;
+    width:2px; height:2px;
+    background:#fff;
+    border-radius:50%;
+    opacity:0.5;
+    animation:twinkle 5s ease-in-out infinite;
+  }
+  @keyframes twinkle{
+    0%,100%{ opacity:0.15; }
+    50%{ opacity:0.85; }
+  }
+
+  .circuit-lines{
+    position:absolute; inset:0;
+    opacity:0.16;
+    pointer-events:none;
+  }
+
+  /* ============================================================
+     LAYOUT SHELL
+     ============================================================ */
+  .page{ position:relative; z-index:1; }
+  .wrap{
+    width:100%;
+    max-width:1360px;
+    margin:0 auto;
+    padding-inline:32px;
+  }
+
+  /* ============================================================
+     HEADER
+     ============================================================ */
+  header.site-header{
+    position:relative;
+    z-index:10;
+    padding-top:26px;
+    padding-bottom:26px;
+    border-bottom:1px solid var(--border-dim);
+  }
+  .header-inner{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:24px;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    min-width:0;
+  }
+  .brand-logo{
+    height:56px;
+    width:auto;
+    flex-shrink:0;
+    object-fit:contain;
+  }
+  .brand-copy{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+    min-width:0;
+  }
+  .brand-name{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:15px;
+    letter-spacing:0.14em;
+    color:var(--text-hi);
+    white-space:nowrap;
+  }
+  .brand-sub{
+    font-family:var(--font-mono);
+    font-weight:500;
+    font-size:10.5px;
+    letter-spacing:0.24em;
+    color:var(--c-purple-2);
+    white-space:nowrap;
+  }
+
+  .btn-join{
+    position:relative;
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    padding:12px 22px;
+    background:rgba(162,89,255,0.06);
+    border:1px solid rgba(178,110,255,0.45);
+    color:var(--text-hi);
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:12.5px;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    clip-path:polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+    transition:background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, transform 0.2s ease;
+    white-space:nowrap;
+    flex-shrink:0;
+  }
+  .btn-join svg{ flex-shrink:0; }
+  .btn-join:hover,
+  .btn-join:focus-visible{
+    background:rgba(178,110,255,0.14);
+    border-color:var(--c-pink);
+    box-shadow:0 0 24px rgba(178,110,255,0.25);
+    transform:translateY(-1px);
+  }
+  .btn-join .arrow{ transition:transform 0.25s ease; }
+  .btn-join:hover .arrow{ transform:translateX(3px); }
+
+  /* ============================================================
+     HERO
+     ============================================================ */
+  .hero{
+    position:relative;
+    padding-top:96px;
+    padding-bottom:120px;
+    text-align:center;
+    min-height:640px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .hero-inner{
+    position:relative;
+    width:100%;
+    max-width:840px;
+    margin:0 auto;
+    padding-inline:20px;
+  }
+
+  .hero-eyebrow{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:0.32em;
+    color:var(--text-dim);
+    text-transform:uppercase;
+    margin-bottom:28px;
+  }
+  .hero-eyebrow .dot{
+    width:6px; height:6px; border-radius:50%;
+    background:var(--status-green);
+    box-shadow:0 0 8px var(--status-green);
+    animation:pulseDot 2.4s ease-in-out infinite;
+  }
+  @keyframes pulseDot{
+    0%,100%{ opacity:1; }
+    50%{ opacity:0.35; }
+  }
+
+  .hero h1{
+    font-family:var(--font-display);
+    font-weight:700;
+    text-transform:uppercase;
+    font-size:clamp(2.6rem, 7vw, 5.4rem);
+    line-height:1.04;
+    letter-spacing:0.02em;
+    color:var(--text-hi);
+  }
+  .hero h1 .accent{
+    background:linear-gradient(100deg, var(--c-purple) 0%, var(--c-pink) 100%);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+
+  .hero-subtitle{
+    margin-top:26px;
+    font-family:var(--font-mono);
+    font-weight:500;
+    font-size:clamp(11px, 1.4vw, 13px);
+    letter-spacing:0.28em;
+    text-transform:uppercase;
+    color:var(--text-mid);
+  }
+
+  .hero-cta{
+    margin-top:52px;
+  }
+  .btn-choose{
+    position:relative;
+    display:inline-flex;
+    align-items:center;
+    gap:12px;
+    padding:17px 34px;
+    background:rgba(10,12,26,0.6);
+    border:1px solid rgba(178,110,255,0.5);
+    color:var(--text-hi);
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:14px;
+    letter-spacing:0.16em;
+    text-transform:uppercase;
+    clip-path:polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+    box-shadow:0 0 0 rgba(178,110,255,0);
+    transition:box-shadow 0.3s ease, border-color 0.3s ease, transform 0.2s ease, background 0.3s ease;
+  }
+  .btn-choose:hover,
+  .btn-choose:focus-visible{
+    border-color:var(--c-pink);
+    background:rgba(30,16,54,0.75);
+    box-shadow:0 0 34px rgba(178,110,255,0.35);
+    transform:translateY(-2px);
+  }
+  .btn-choose .chev{
+    transition:transform 0.3s ease;
+  }
+  .btn-choose:hover .chev{ transform:translateY(3px); }
+
+  /* HUD decorative panels */
+  .hud{
+    position:absolute;
+    display:none;
+    font-family:var(--font-mono);
+    color:var(--text-dim);
+    pointer-events:none;
+    user-select:none;
+  }
+  @media (min-width: 900px){
+    .hud{ display:block; }
+  }
+  .hud--left{
+    left:0;
+    top:52%;
+    transform:translateY(-50%);
+  }
+  .hud-panel{
+    border:1px solid var(--border-dim);
+    background:rgba(10,12,26,0.35);
+    padding:14px 18px;
+    clip-path:polygon(8px 0, 100% 0, 100% 100%, 0 100%, 0 8px);
+  }
+  .hud-panel .l1{
+    font-size:11px; letter-spacing:0.22em; color:var(--text-mid); font-weight:600;
+  }
+  .hud-panel .l2{
+    font-size:11px; letter-spacing:0.22em; color:var(--c-purple-2); font-weight:600; margin-top:2px;
+  }
+  .hud-bars{
+    display:flex; gap:3px; margin-top:10px;
+  }
+  .hud-bars span{
+    width:14px; height:3px; background:var(--border-mid);
+  }
+  .hud-bars span:nth-child(1){ background:var(--c-purple); }
+  .hud-bars span:nth-child(2){ background:var(--c-purple); opacity:0.7; }
+
+  .hud--right{
+    right:0;
+    top:38%;
+    text-align:right;
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+    gap:22px;
+  }
+  .hud-status{
+    font-size:11px;
+    letter-spacing:0.2em;
+    color:var(--text-mid);
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .hud-status .led{
+    width:6px; height:6px; border-radius:50%;
+    background:var(--status-green);
+    box-shadow:0 0 8px var(--status-green);
+    animation:pulseDot 2.4s ease-in-out infinite;
+  }
+  .hud-radar{
+    width:96px; height:96px;
+    border-radius:50%;
+    border:1px solid var(--border-mid);
+    position:relative;
+    opacity:0.7;
+  }
+  .hud-radar::before{
+    content:"";
+    position:absolute; inset:16px;
+    border-radius:50%;
+    border:1px solid var(--border-dim);
+  }
+  .hud-radar::after{
+    content:"";
+    position:absolute; left:50%; top:50%;
+    width:50%; height:1px;
+    background:linear-gradient(90deg, var(--c-cyan), transparent);
+    transform-origin:left center;
+    animation:radarSweep 4.5s linear infinite;
+  }
+  @keyframes radarSweep{
+    from{ transform:rotate(0deg); }
+    to{ transform:rotate(360deg); }
+  }
+
+  /* ============================================================
+     GAMES SECTION
+     ============================================================ */
+  .games{
+    position:relative;
+    padding-bottom:140px;
+    padding-top:10px;
+  }
+  .section-label{
+    text-align:center;
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:0.32em;
+    text-transform:uppercase;
+    color:var(--text-dim);
+    margin-bottom:46px;
+  }
+
+  .game-grid{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:22px;
+  }
+  @media (max-width:1100px){
+    .game-grid{ grid-template-columns:repeat(2, 1fr); }
+  }
+  @media (max-width:620px){
+    .game-grid{ grid-template-columns:1fr; }
+  }
+
+  .game-card{
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    background:var(--panel);
+    border:1px solid var(--border-dim);
+    padding:26px 22px 24px;
+    text-align:left;
+    color:var(--text-hi);
+    width:100%;
+    min-height:340px;
+    isolation:isolate;
+    overflow:hidden;
+    clip-path:polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
+    transition:transform 0.28s ease, border-color 0.28s ease, background 0.28s ease;
+  }
+  .game-card::before{
+    /* accent glow behind card */
+    content:"";
+    position:absolute;
+    inset:-30%;
+    z-index:-1;
+    opacity:0;
+    background:radial-gradient(circle at 30% 20%, var(--glow-color, transparent), transparent 60%);
+    transition:opacity 0.3s ease;
+  }
+  .game-card:hover,
+  .game-card:focus-visible{
+    transform:translateY(-6px);
+    border-color:var(--card-accent);
+    background:rgba(16,20,42,0.7);
+  }
+  .game-card:hover::before,
+  .game-card:focus-visible::before{ opacity:0.55; }
+
+  .game-card--gridlock{ --card-accent:var(--c-purple); --glow-color:rgba(162,89,255,0.35); }
+  .game-card--codebreaker{ --card-accent:var(--c-blue); --glow-color:rgba(47,178,255,0.32); }
+  .game-card--codebreaker:disabled{
+    cursor:not-allowed;
+    opacity:0.68;
+    filter:saturate(0.72);
+  }
+  .game-card--codebreaker:disabled:hover{
+    transform:none;
+    border-color:var(--border-dim);
+    background:var(--panel);
+  }
+  .game-card--codebreaker:disabled .card-icon{
+    filter:none;
+  }
+  .game-card--codebreaker:disabled .card-status{
+    color:var(--c-blue);
+  }
+  .coming-soon-label{
+    color:var(--c-blue);
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:12px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+  }
+  .game-card--shapeshift{ --card-accent:var(--c-pink); --glow-color:rgba(255,78,205,0.32); }
+  .game-card--pinpoint{ --card-accent:var(--c-cyan); --glow-color:rgba(43,232,201,0.32); }
+
+  .card-top{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    margin-bottom:20px;
+  }
+  .card-index{
+    font-family:var(--font-mono);
+    font-size:12px;
+    letter-spacing:0.1em;
+    color:var(--text-dim);
+  }
+  .card-status{
+    font-family:var(--font-mono);
+    font-size:9.5px;
+    letter-spacing:0.16em;
+    text-transform:uppercase;
+    color:var(--card-accent);
+    border:1px solid currentColor;
+    padding:3px 8px;
+    opacity:0.85;
+  }
+
+  .card-icon{
+    width:52px; height:52px;
+    display:flex; align-items:center; justify-content:center;
+    color:var(--card-accent);
+    margin-bottom:18px;
+    transition:filter 0.3s ease;
+  }
+  .game-card:hover .card-icon{
+    filter:drop-shadow(0 0 10px var(--card-accent));
+  }
+  .card-icon svg{ width:100%; height:100%; }
+
+  .card-title{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:20px;
+    letter-spacing:0.03em;
+    text-transform:uppercase;
+    margin-bottom:4px;
+  }
+  .card-subtitle{
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:0.08em;
+    color:var(--card-accent);
+    margin-bottom:14px;
+  }
+  .card-category{
+    font-family:var(--font-mono);
+    font-size:10px;
+    letter-spacing:0.14em;
+    color:var(--text-dim);
+    text-transform:uppercase;
+    margin-bottom:12px;
+  }
+  .card-desc{
+    font-size:13.5px;
+    line-height:1.55;
+    color:var(--text-mid);
+    flex-grow:1;
+  }
+
+  .card-play{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    margin-top:22px;
+    padding-top:16px;
+    border-top:1px solid var(--border-dim);
+    background:none;
+    border-left:none;
+    border-right:none;
+    border-bottom:none;
+    color:var(--text-hi);
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:12px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    width:100%;
+    justify-content:space-between;
+  }
+  .card-play .arrow{
+    color:var(--card-accent);
+    transition:transform 0.25s ease;
+  }
+  .game-card:hover .card-play .arrow{ transform:translateX(4px); }
+
+  .card-corner{
+    position:absolute;
+    width:16px; height:16px;
+    border-color:var(--card-accent);
+    opacity:0.5;
+    pointer-events:none;
+  }
+  .card-corner.tl{ top:8px; left:8px; border-top:1px solid; border-left:1px solid; }
+  .card-corner.br{ bottom:8px; right:8px; border-bottom:1px solid; border-right:1px solid; }
+
+  /* ============================================================
+     FOOTER
+     ============================================================ */
+  footer.site-footer{
+    position:relative;
+    z-index:1;
+    border-top:1px solid var(--border-dim);
+    padding:30px 0;
+    text-align:center;
+  }
+  .footer-line{
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:0.22em;
+    text-transform:uppercase;
+    color:var(--text-dim);
+  }
+  .footer-line .tag{
+    color:var(--c-purple-2);
+  }
+
+  /* ============================================================
+     RESPONSIVE TWEAKS
+     ============================================================ */
+  @media (max-width:720px){
+    .wrap{ padding-inline:20px; }
+    header.site-header{ padding-top:20px; padding-bottom:20px; }
+    .brand-logo{ height:44px; }
+    .brand-name{ font-size:12.5px; }
+    .brand-sub{ font-size:9px; }
+    .btn-join{ padding:10px 16px; font-size:11px; }
+    .hero{ padding-top:64px; padding-bottom:70px; min-height:auto; }
+    .hero-cta{ margin-top:38px; }
+    .games{ padding-bottom:90px; }
+  }
+  @media (max-width:400px){
+    .btn-join span.btn-join-text{ display:none; }
+    .btn-join{ padding:10px 12px; gap:6px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="space-bg" aria-hidden="true">
+  <div class="nebula nebula--blue"></div>
+  <div class="nebula nebula--pink"></div>
+  <div class="nebula nebula--core"></div>
+  <div class="stars" id="stars"></div>
+  <svg class="circuit-lines" viewBox="0 0 1440 900" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0 120 H180 L220 160 H420" stroke="#5b6ad6" stroke-width="1" fill="none"/>
+    <path d="M1440 700 H1260 L1220 660 H1040" stroke="#c15be0" stroke-width="1" fill="none"/>
+    <path d="M0 780 H140 L170 750 H320 L350 780 H520" stroke="#5b6ad6" stroke-width="1" fill="none"/>
+    <path d="M1440 200 H1300 L1270 230 H1120" stroke="#c15be0" stroke-width="1" fill="none"/>
+    <circle cx="420" cy="160" r="3" fill="#5b6ad6"/>
+    <circle cx="1040" cy="660" r="3" fill="#c15be0"/>
+    <circle cx="520" cy="780" r="3" fill="#5b6ad6"/>
+    <circle cx="1120" cy="230" r="3" fill="#c15be0"/>
+  </svg>
+</div>
+
+<div class="page">
+
+  <!-- ============================ HEADER ============================ -->
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <div class="brand">
+        <img class="brand-logo" src="assets/mcc-logo.jpg" alt="Microsoft Campus Club logo">
+        <div class="brand-copy">
+          <span class="brand-name">MICROSOFT CAMPUS CLUB</span>
+          <span class="brand-sub">TECHNICAL GAME HUB</span>
+        </div>
+      </div>
+
+      <a class="btn-join" id="joinClubBtn" href="#" role="button">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M17 20v-1.5a3.5 3.5 0 0 0-3.5-3.5h-5A3.5 3.5 0 0 0 5 18.5V20" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          <circle cx="9.5" cy="7.5" r="3" stroke="currentColor" stroke-width="1.6"/>
+          <path d="M16 8a3 3 0 1 0 0-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          <path d="M18 14.2c1.7.4 3 1.8 3 3.8V20" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+        <span class="btn-join-text">Join the Club</span>
+        <svg class="arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    </div>
+  </header>
+
+  <!-- ============================ HERO ============================ -->
+  <section class="hero">
+
+    <div class="hud hud--left" aria-hidden="true">
+      <div class="hud-panel">
+        <div class="l1">READY</div>
+        <div class="l2">PLAYER</div>
+        <div class="hud-bars"><span></span><span></span><span></span></div>
+      </div>
+    </div>
+
+    <div class="hud hud--right" aria-hidden="true">
+      <div class="hud-status"><span class="led"></span> SYSTEM ONLINE</div>
+      <div class="hud-radar"></div>
+    </div>
+
+    <div class="hero-inner">
+      <p class="hero-eyebrow"><span class="dot"></span> MISSION CONTROL / GAME ARENA</p>
+
+      <h1>THINK. SOLVE.<br><span class="accent">CONQUER.</span></h1>
+
+      <p class="hero-subtitle">4 Games. 1 Arena. Endless Challenges.</p>
+
+      <div class="hero-cta">
+        <a class="btn-choose" href="#games">
+          Choose Your Game
+          <svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ GAMES ============================ -->
+  <section class="games" id="games">
+    <div class="wrap">
+      <p class="section-label">Select a Challenge</p>
+
+      <div class="game-grid">
+
+        <!-- GAME 01 — THE GRIDLOCK -->
+        <button class="game-card game-card--gridlock" type="button" data-game="gridlock" aria-label="Play The Gridlock — Traffic Clearing Puzzle">
+          <span class="card-corner tl" aria-hidden="true"></span>
+          <span class="card-corner br" aria-hidden="true"></span>
+          <span class="card-top">
+            <span class="card-index">01</span>
+            <span class="card-status">Ready</span>
+          </span>
+          <span class="card-icon" aria-hidden="true">
+            <svg viewBox="0 0 48 48" fill="none">
+              <rect x="4" y="4" width="40" height="40" rx="2" stroke="currentColor" stroke-width="1.6"/>
+              <line x1="4" y1="17" x2="44" y2="17" stroke="currentColor" stroke-width="1.2" opacity="0.5"/>
+              <line x1="4" y1="30" x2="44" y2="30" stroke="currentColor" stroke-width="1.2" opacity="0.5"/>
+              <line x1="17" y1="4" x2="17" y2="44" stroke="currentColor" stroke-width="1.2" opacity="0.5"/>
+              <line x1="30" y1="4" x2="30" y2="44" stroke="currentColor" stroke-width="1.2" opacity="0.5"/>
+              <rect x="18" y="18" width="12" height="12" fill="currentColor" opacity="0.85"/>
+              <path d="M36 24h6m-3-3l3 3-3 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span class="card-title">The Gridlock</span>
+          <span class="card-subtitle">Traffic Clearing Puzzle</span>
+          <span class="card-category">Logic • Puzzle • Strategy</span>
+          <span class="card-desc">Clear the grid. Move the blocks. Find the path. Get the Key Block to the exit.</span>
+          <span class="card-play">
+            <span>Play Now</span>
+            <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </button>
+
+        <!-- GAME 02 — CODEBREAKER / COMING SOON -->
+        <button class="game-card game-card--codebreaker" type="button" data-game="codebreaker" aria-label="Codebreaker — Coming Soon" disabled>
+          <span class="card-corner tl" aria-hidden="true"></span>
+          <span class="card-corner br" aria-hidden="true"></span>
+          <span class="card-top">
+            <span class="card-index">02</span>
+            <span class="card-status">Coming Soon</span>
+          </span>
+          <span class="card-icon" aria-hidden="true">
+            <svg viewBox="0 0 48 48" fill="none">
+              <rect x="10" y="20" width="28" height="20" rx="2" stroke="currentColor" stroke-width="1.6"/>
+              <path d="M16 20v-6a8 8 0 0 1 16 0v6" stroke="currentColor" stroke-width="1.6"/>
+              <circle cx="24" cy="29" r="2.4" fill="currentColor"/>
+              <line x1="24" y1="31.5" x2="24" y2="35" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+              <text x="24" y="12" text-anchor="middle" font-family="monospace" font-size="7" fill="currentColor" opacity="0.7">4831</text>
+            </svg>
+          </span>
+          <span class="card-title">Codebreaker</span>
+          <span class="card-subtitle">The Numeric Mastermind</span>
+          <span class="card-category">Deduction • Numbers • Logic</span>
+          <span class="card-desc">Crack the hidden 4-digit code using logic, clues and six attempts.</span>
+          <span class="card-play">
+            <span class="coming-soon-label">Coming Soon</span>
+            <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <rect x="5" y="10" width="14" height="11" rx="2" stroke="currentColor" stroke-width="1.8"/>
+              <path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+          </span>
+        </button>
+
+        <!-- GAME 03 — SHAPE SHIFT -->
+        <button class="game-card game-card--shapeshift" type="button" data-game="shapeshift" aria-label="Play Shape Shift — The Latin Square Grid">
+          <span class="card-corner tl" aria-hidden="true"></span>
+          <span class="card-corner br" aria-hidden="true"></span>
+          <span class="card-top">
+            <span class="card-index">03</span>
+            <span class="card-status">Ready</span>
+          </span>
+          <span class="card-icon" aria-hidden="true">
+            <svg viewBox="0 0 48 48" fill="none">
+              <rect x="4" y="4" width="18" height="18" rx="1" stroke="currentColor" stroke-width="1.6"/>
+              <circle cx="35" cy="13" r="9" stroke="currentColor" stroke-width="1.6"/>
+              <path d="M13 26 L22 44 L4 44 Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+              <path d="M35 24l2.1 4.3 4.7.7-3.4 3.3.8 4.7-4.2-2.2-4.2 2.2.8-4.7-3.4-3.3 4.7-.7z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span class="card-title">Shape Shift</span>
+          <span class="card-subtitle">The Latin Square Grid</span>
+          <span class="card-category">Patterns • Logic • IQ</span>
+          <span class="card-desc">Place every shape exactly once in each row and column. Can you complete the grid?</span>
+          <span class="card-play">
+            <span>Play Now</span>
+            <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </button>
+
+        <!-- GAME 04 — PINPOINT -->
+        <button class="game-card game-card--pinpoint" type="button" data-game="pinpoint" aria-label="Play Pinpoint — The Word Link Engine">
+          <span class="card-corner tl" aria-hidden="true"></span>
+          <span class="card-corner br" aria-hidden="true"></span>
+          <span class="card-top">
+            <span class="card-index">04</span>
+            <span class="card-status">Ready</span>
+          </span>
+          <span class="card-icon" aria-hidden="true">
+            <svg viewBox="0 0 48 48" fill="none">
+              <circle cx="24" cy="24" r="18" stroke="currentColor" stroke-width="1.4"/>
+              <circle cx="24" cy="24" r="11" stroke="currentColor" stroke-width="1.4"/>
+              <circle cx="24" cy="24" r="3" fill="currentColor"/>
+              <circle cx="8" cy="10" r="2.2" fill="currentColor"/>
+              <circle cx="41" cy="12" r="2.2" fill="currentColor"/>
+              <circle cx="6" cy="38" r="2.2" fill="currentColor"/>
+              <path d="M8 10 L20 20 M41 12 L28 21 M6 38 L20 27" stroke="currentColor" stroke-width="1.2" opacity="0.6"/>
+            </svg>
+          </span>
+          <span class="card-title">Pinpoint</span>
+          <span class="card-subtitle">The Word Link Engine</span>
+          <span class="card-category">Words • Deduction • Connection</span>
+          <span class="card-desc">Uncover the clues. Find the hidden connection. Pinpoint the category before your attempts run out.</span>
+          <span class="card-play">
+            <span>Play Now</span>
+            <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </button>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ FOOTER ============================ -->
+  <footer class="site-footer">
+    <p class="footer-line"><span class="tag">&lt;/&gt;</span>&nbsp; BUILT BY CREATORS. FOR INNOVATORS. &nbsp;<span class="tag">&lt;/&gt;</span></p>
+  </footer>
+
+</div>
+
+<script>
+/* ============================================================
+   CONFIG — centralized redirect targets.
+   Update the URLs below when each game / the club page is deployed.
+   ============================================================ */
+const CONFIG = {
+  clubUrl: "https://microsoft-campus-club-webpage.vercel.app/",
+
+  games: {
+    gridlock:    "#", // TODO: replace with THE GRIDLOCK deployed URL
+    codebreaker: "#", // TODO: replace with CODEBREAKER deployed URL
+    shapeshift:  "#", // TODO: replace with SHAPE SHIFT deployed URL
+    pinpoint:    "#"  // TODO: replace with PINPOINT deployed URL
+  }
+};
+
+/* Join the Club button */
+document.getElementById('joinClubBtn').addEventListener('click', function(e){
+  e.preventDefault();
+  window.location.href = CONFIG.clubUrl;
+});
+
+/* Game cards */
+document.querySelectorAll('.game-card').forEach(function(card){
+  card.addEventListener('click', function(){
+    if(card.disabled) return;
+    const key = card.getAttribute('data-game');
+    const url = CONFIG.games[key];
+    if(url && url !== "#"){
+      window.location.href = url;
+    }
+  });
+});
+
+/* Lightweight starfield — generated once, no per-frame JS cost */
+(function(){
+  const container = document.getElementById('stars');
+  if(!container) return;
+  const COUNT = window.innerWidth < 640 ? 40 : 80;
+  const frag = document.createDocumentFragment();
+  for(let i = 0; i < COUNT; i++){
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.left = (Math.random() * 100) + '%';
+    s.style.top = (Math.random() * 100) + '%';
+    s.style.animationDelay = (Math.random() * 5) + 's';
+    s.style.animationDuration = (4 + Math.random() * 4) + 's';
+    frag.appendChild(s);
+  }
+  container.appendChild(frag);
+})();
+</script>
+
+</body>
+</html>
