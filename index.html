@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Microsoft Campus Club — Technical Game Hub</title>
-<meta name="description" content="Enter the arena. Four technical logic games. One central hub. Microsoft Campus Club's Technical Game Hub.">
+<meta name="description" content="Enter the arena. Five technical logic & arcade games. One central hub. Microsoft Campus Club's Technical Game Hub.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -36,6 +36,8 @@
     --c-pink-2:    #b23bff;
     --c-cyan:      #2be8c9;
     --c-cyan-2:    #14b88a;
+    --c-orange:    #ff7a18;
+    --c-orange-2:  #ff3d00;
 
     --status-green: #34e39a;
 
@@ -568,13 +570,16 @@
 
   .game-grid{
     display:grid;
-    grid-template-columns:repeat(4, 1fr);
-    gap:22px;
+    grid-template-columns:repeat(5, 1fr);
+    gap:18px;
   }
-  @media (max-width:1100px){
+  @media (max-width:1280px){
+    .game-grid{ grid-template-columns:repeat(3, 1fr); }
+  }
+  @media (max-width:840px){
     .game-grid{ grid-template-columns:repeat(2, 1fr); }
   }
-  @media (max-width:620px){
+  @media (max-width:560px){
     .game-grid{ grid-template-columns:1fr; }
   }
 
@@ -584,7 +589,7 @@
     flex-direction:column;
     background:var(--panel);
     border:1px solid var(--border-dim);
-    padding:26px 22px 24px;
+    padding:26px 20px 22px;
     text-align:left;
     color:var(--text-hi);
     width:100%;
@@ -617,6 +622,7 @@
   .game-card--codebreaker{ --card-accent:var(--c-blue); --glow-color:rgba(47,178,255,0.32); }
   .game-card--shapeshift{ --card-accent:var(--c-pink); --glow-color:rgba(255,78,205,0.32); }
   .game-card--pinpoint{ --card-accent:var(--c-cyan); --glow-color:rgba(43,232,201,0.32); }
+  .game-card--roadrash{ --card-accent:var(--c-orange); --glow-color:rgba(255,122,24,0.35); }
 
   .card-top{
     display:flex;
@@ -906,7 +912,7 @@
 
       <h1>THINK. SOLVE.<br><span class="accent">CONQUER.</span></h1>
 
-      <p class="hero-subtitle">4 Games. 1 Arena. Endless Challenges.</p>
+      <p class="hero-subtitle">5 Games. 1 Arena. Endless Challenges.</p>
 
       <div class="hero-cta">
         <a class="btn-choose" href="#games">
@@ -1045,6 +1051,39 @@
           </span>
         </button>
 
+        <!-- GAME 05 — ROAD RASH -->
+        <button class="game-card game-card--roadrash" type="button" data-game="roadrash" aria-label="Play Road Rash — High-Speed Highway Racer">
+          <span class="card-corner tl" aria-hidden="true"></span>
+          <span class="card-corner br" aria-hidden="true"></span>
+          <span class="card-top">
+            <span class="card-index">05</span>
+            <span class="card-status">Ready</span>
+          </span>
+          <span class="card-icon" aria-hidden="true">
+            <svg viewBox="0 0 48 48" fill="none">
+              <path d="M8 40 L16 8 M40 40 L32 8" stroke="currentColor" stroke-width="1.2" stroke-dasharray="3 3" opacity="0.5"/>
+              <line x1="24" y1="6" x2="24" y2="14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" opacity="0.7"/>
+              <line x1="24" y1="20" x2="24" y2="28" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" opacity="0.7"/>
+              <line x1="24" y1="34" x2="24" y2="42" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" opacity="0.7"/>
+              <path d="M19 14 C19 12 21 10 24 10 C27 10 29 12 29 14 L30 20 L32 24 L32 34 C32 36 30 38 28 38 L20 38 C18 38 16 36 16 34 L16 24 L18 20 Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+              <path d="M19 20 L29 20 L28 25 L20 25 Z" fill="currentColor" opacity="0.85"/>
+              <line x1="15" y1="37" x2="33" y2="37" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+              <circle cx="18" cy="14" r="1" fill="currentColor"/>
+              <circle cx="30" cy="14" r="1" fill="currentColor"/>
+            </svg>
+          </span>
+          <span class="card-title">Road Rash</span>
+          <span class="card-subtitle">Highway Speed Racer</span>
+          <span class="card-category">Action • Racing • Reflex</span>
+          <span class="card-desc">Dodge traffic, shift lanes at terminal velocity, and outlast the relentless highway rush.</span>
+          <span class="card-play">
+            <span>Play Now</span>
+            <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </button>
+
       </div>
     </div>
   </section>
@@ -1068,7 +1107,8 @@ const CONFIG = {
     gridlock:    "#", // TODO: replace with THE GRIDLOCK deployed URL
     codebreaker: "#", // TODO: replace with CODEBREAKER deployed URL
     shapeshift:  "#", // TODO: replace with SHAPE SHIFT deployed URL
-    pinpoint:    "#"  // TODO: replace with PINPOINT deployed URL
+    pinpoint:    "#", // TODO: replace with PINPOINT deployed URL
+    roadrash:    "https://bespoke-beignet-0d3e50.netlify.app/"
   }
 };
 
